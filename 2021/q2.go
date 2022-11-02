@@ -40,7 +40,8 @@ func check(e error) {
 }
 
 func main() {
-	fmt.Println(part1())
+	fmt.Printf("Part 1: %d\n", part1())
+	fmt.Printf("Part 2: %d\n", part2())
 }
 
 func part1() int {
@@ -58,4 +59,23 @@ func part1() int {
 		}
 	}
 	return d * h
+}
+
+func part2() int {
+	var h int
+	var d int
+	var aim int
+
+	for _, inst := range instructions {
+		switch inst.direction {
+		case "forward":
+			h += inst.dist
+			d += aim * inst.dist
+		case "down":
+			aim += inst.dist
+		case "up":
+			aim -= inst.dist
+		}
+	}
+	return h * d
 }
