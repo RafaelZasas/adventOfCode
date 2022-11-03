@@ -81,6 +81,47 @@ func part1() int64 {
 	return gammaVal * epsilonVal
 }
 
+func getO2Rating(l []string, index int) string {
+	if len(l) == 1 {
+		return l[index]
+	}
+
+	var lZeros []string
+	var lOnes []string
+
+	for _, bitStr := range l {
+		if bitStr[index] == '1' {
+			lZeros = append(lZeros, bitStr)
+		} else {
+			lOnes = append(lOnes, bitStr)
+		}
+	}
+
+	if len(lZeros) == len(lOnes) {
+		for _, subL := range l {
+
+			if subL[index] == '1' {
+				return lZeros[index]
+			} else {
+				continue
+			}
+		}
+
+	}
+
+	if len(lZeros) > len(lOnes) {
+		return getO2Rating(lZeros, index+1)
+	} else {
+		return getO2Rating(lOnes, index+1)
+	}
+}
+
+func part2() {
+	o2Rating := getO2Rating(report, 0)
+	fmt.Println(o2Rating)
+}
+
 func main() {
 	fmt.Printf("Part 1: %d", part1())
+	part2()
 }
