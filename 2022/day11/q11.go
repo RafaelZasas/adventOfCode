@@ -36,7 +36,6 @@ func init() {
 
 	scanner := bufio.NewScanner(file)
 
-    monkeyIdx := 0
 	for scanner.Scan() {
 
 	}

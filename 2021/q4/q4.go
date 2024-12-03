@@ -63,11 +63,13 @@ func markBoard(b *board, n int) {
 // to see if there is a row with 5 X's
 func checkWinningRow(b board) bool {
 
+	return false
 }
 
 // checkWinningCol checks a given board
 // to see if there is a column with 5 X's
 func checkWinningCol(b board) bool {
+	return false
 
 }
 

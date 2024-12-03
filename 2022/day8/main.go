@@ -1,6 +1,9 @@
 package q8
 
-import "os"
+import (
+	"fmt"
+	"os"
+)
 
 var numVisibleTrees int
 var treeGrid [][]int
