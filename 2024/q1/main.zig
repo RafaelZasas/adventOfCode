@@ -6,18 +6,23 @@ var rightList: []i32 = undefined;
 const filePath = "input.txt";
 // const filePath = "example.txt";
 
+var buffer: [80000]u8 = undefined;
+var fba = std.heap.FixedBufferAllocator.init(&buffer);
+const allocator = fba.allocator();
+
 fn init() !void {
-    const allocator = std.heap.page_allocator;
 
     // Open the file in read mode
     const file = try std.fs.cwd().openFile(filePath, .{});
     defer file.close();
 
     // i guess this is a random pick for max buffer size
-    const file_buffer = try file.readToEndAlloc(allocator, 32768);
+    const stat = try file.stat();
+    const file_buffer = try file.readToEndAlloc(allocator, stat.size);
 
     var lines = std.ArrayList([]const u8).init(allocator);
     defer lines.deinit();
+
     var iter = std.mem.splitAny(u8, file_buffer, "\n");
 
     while (iter.next()) |line| {
@@ -32,6 +37,8 @@ fn init() !void {
     // allocate enough mem for the arrays
     leftList = try allocator.alloc(i32, count);
     rightList = try allocator.alloc(i32, count);
+    // defer allocator.free(leftList);
+    // defer allocator.free(rightList);
 
     // iterate over the lines and split them into left and right
     var idx: usize = 0;
@@ -69,6 +76,40 @@ fn partOne() void {
     std.debug.print("partOne: {d}\n", .{count});
 }
 
+fn partTwo() !void {
+    var similarityScore: i32 = 0;
+
+    // create a dict to store the numbers and counts
+    var countDict = std.AutoHashMap(i32, i32).init(allocator);
+    defer countDict.deinit();
+
+    for (0..rightList.len) |i| {
+
+        // check if the abs is already in the dict
+        const maybeCount = countDict.get(rightList[i]);
+
+        if (maybeCount == null) {
+            try countDict.put(rightList[i], 1);
+        } else {
+            try countDict.put(rightList[i], maybeCount.? + 1);
+        }
+    }
+
+    for (0..leftList.len) |i| {
+        const maybeCount = countDict.get(leftList[i]);
+
+        var multiplier: i32 = 0;
+
+        if (maybeCount != null) {
+            multiplier = maybeCount.?;
+        }
+
+        similarityScore += leftList[i] * multiplier;
+    }
+
+    std.debug.print("partTwo: {d}\n", .{similarityScore});
+}
+
 fn getAbs(a: i32, b: i32) i32 {
     if (a > b) {
         return a - b;
@@ -81,7 +122,6 @@ pub fn main() !void {
         std.debug.print("Error: {any}\n", .{err});
     };
 
-    // start the timer
     var startTime: std.time.Timer = try std.time.Timer.start();
     partOne();
     // duration in nanoseconds
@@ -89,4 +129,12 @@ pub fn main() !void {
 
     // print the duration in microseconds
     std.debug.print("Part One took: {d}µs\n", .{end});
+
+    startTime = try std.time.Timer.start();
+    partTwo() catch |err| {
+        std.debug.print("Error: {any}\n", .{err});
+    };
+    const end2 = std.time.Timer.read(&startTime) / 1000;
+
+    std.debug.print("Part Two took: {d}µs\n", .{end2});
 }
